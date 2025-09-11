@@ -226,11 +226,11 @@ class LearnableRepLayer(nn.Module):
             return 0, 0
         elif isinstance(branch, ConvBNLayer):
             kernel = branch.conv.weight
-            running_mean = branch.bn._mean
-            running_var = branch.bn._variance
+            running_mean = branch.bn.running_mean
+            running_var = branch.bn.running_var
             gamma = branch.bn.weight
             beta = branch.bn.bias
-            eps = branch.bn._epsilon
+            eps = branch.bn.eps
         else:
             assert isinstance(branch, nn.BatchNorm2d)
             if not hasattr(self, 'id_tensor'):
@@ -244,11 +244,11 @@ class LearnableRepLayer(nn.Module):
                                  self.kernel_size // 2] = 1
                 self.id_tensor = kernel_value
             kernel = self.id_tensor
-            running_mean = branch._mean
-            running_var = branch._variance
+            running_mean = branch.running_mean
+            running_var = branch.running_var
             gamma = branch.weight
             beta = branch.bias
-            eps = branch._epsilon
+            eps = branch.eps
         std = (running_var + eps).sqrt()
         t = (gamma / std).reshape((-1, 1, 1, 1))
         return kernel * t, beta - running_mean * gamma / std
